@@ -1,7 +1,7 @@
 const REST_ENDPOINT = "http://localhost:5000/api/v1/ppt/presentation/generate";
 
 export interface GenerateParams {
-  topic: string;
+  content: string;
   n_slides: number;
   language: string;
   tone: string;
@@ -19,7 +19,7 @@ export async function generatePresentation(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      topic: params.topic,
+      content: params.content,
       n_slides: params.n_slides,
       language: params.language,
       tone: params.tone,

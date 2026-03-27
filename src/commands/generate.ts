@@ -40,7 +40,7 @@ export const generateCommand = new Command("generate")
     spinner.text = `正在生成簡報：「${prompt}」...`;
 
     const params = {
-      topic: prompt,
+      content: prompt,
       n_slides: parseInt(options.slides, 10),
       language: options.lang,
       tone: options.style,

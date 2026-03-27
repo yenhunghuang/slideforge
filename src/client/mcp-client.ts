@@ -4,7 +4,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 const MCP_ENDPOINT = "http://localhost:5000/mcp";
 
 export interface GenerateParams {
-  topic: string;
+  content: string;
   n_slides: number;
   language: string;
   tone: string;
@@ -34,7 +34,7 @@ export async function generatePresentation(
   const result = await c.callTool({
     name: "generate_presentation",
     arguments: {
-      topic: params.topic,
+      content: params.content,
       n_slides: params.n_slides,
       language: params.language,
       tone: params.tone,

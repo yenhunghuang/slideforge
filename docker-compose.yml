@@ -8,6 +8,7 @@ services:
     env_file:
       - .env
     environment:
-      LLM: gemini
-      IMAGE_PROVIDER: nanobanana_pro
+      LLM: google
+      IMAGE_PROVIDER: pexels
+      DISABLE_IMAGE_GENERATION: "true"
     restart: unless-stopped
