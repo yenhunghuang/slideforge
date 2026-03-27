@@ -1,0 +1,13 @@
+services:
+  presenton:
+    image: ghcr.io/presenton/presenton:latest
+    ports:
+      - "5000:80"
+    volumes:
+      - ./app_data:/app_data
+    env_file:
+      - .env
+    environment:
+      LLM: gemini
+      IMAGE_PROVIDER: nanobanana_pro
+    restart: unless-stopped
