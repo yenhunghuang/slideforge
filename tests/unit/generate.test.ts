@@ -17,6 +17,8 @@ async function parseGenerateArgs(args: string[]) {
     .option("--lang <language>", "簡報語言", "Traditional Chinese")
     .option("--style <tone>", "簡報風格語氣", "professional")
     .option("--output <path>", "輸出檔案路徑")
+    .option("--from <file>", "從文件檔案生成（支援 .md / .txt）")
+    .option("--template <name>", "PPTX 模板名稱")
     .action((prompt: string, opts) => {
       capturedPrompt = prompt;
       capturedOpts = opts;
@@ -75,5 +77,36 @@ describe("generate command parameter parsing", () => {
     expect(opts.lang).toBe("en");
     expect(opts.style).toBe("casual");
     expect(opts.output).toBe("k8s.pptx");
+  });
+
+  test("--from 指定檔案路徑", async () => {
+    const { opts } = await parseGenerateArgs(["Topic", "--from", "./notes.md"]);
+    expect(opts.from).toBe("./notes.md");
+  });
+
+  test("--template 指定模板名稱", async () => {
+    const { opts } = await parseGenerateArgs(["Topic", "--template", "dark-tech"]);
+    expect(opts.template).toBe("dark-tech");
+  });
+
+  test("不帶 --from 和 --template 時為 undefined", async () => {
+    const { opts } = await parseGenerateArgs(["Topic"]);
+    expect(opts.from).toBeUndefined();
+    expect(opts.template).toBeUndefined();
+  });
+
+  test("--from 和 --template 與其他參數組合", async () => {
+    const { prompt, opts } = await parseGenerateArgs([
+      "AI Overview",
+      "--slides", "10",
+      "--from", "./doc.txt",
+      "--template", "minimal",
+      "--lang", "en",
+    ]);
+    expect(prompt).toBe("AI Overview");
+    expect(opts.slides).toBe("10");
+    expect(opts.from).toBe("./doc.txt");
+    expect(opts.template).toBe("minimal");
+    expect(opts.lang).toBe("en");
   });
 });

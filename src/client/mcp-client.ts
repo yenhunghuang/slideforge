@@ -8,6 +8,8 @@ export interface GenerateParams {
   n_slides: number;
   language: string;
   tone: string;
+  fromContent?: string;
+  template?: string;
 }
 
 export interface GenerateResult {
@@ -31,14 +33,22 @@ export async function generatePresentation(
 ): Promise<GenerateResult> {
   const c = await connectToEngine();
 
+  const args: Record<string, unknown> = {
+    content: params.fromContent ?? params.content,
+    n_slides: params.n_slides,
+    language: params.language,
+    tone: params.tone,
+  };
+  if (params.fromContent) {
+    args.instruction = params.content;
+  }
+  if (params.template) {
+    args.template = params.template;
+  }
+
   const result = await c.callTool({
     name: "generate_presentation",
-    arguments: {
-      content: params.content,
-      n_slides: params.n_slides,
-      language: params.language,
-      tone: params.tone,
-    },
+    arguments: args,
   });
 
   // Parse the MCP tool result

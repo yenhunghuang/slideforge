@@ -5,6 +5,8 @@ export interface GenerateParams {
   n_slides: number;
   language: string;
   tone: string;
+  fromContent?: string;
+  template?: string;
 }
 
 export interface GenerateResult {
@@ -19,10 +21,12 @@ export async function generatePresentation(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: params.content,
+      content: params.fromContent ?? params.content,
       n_slides: params.n_slides,
       language: params.language,
       tone: params.tone,
+      ...(params.fromContent ? { instruction: params.content } : {}),
+      ...(params.template ? { template: params.template } : {}),
     }),
   });
 

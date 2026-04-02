@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import ora from "ora";
 import { resolve, basename } from "path";
-import { existsSync, copyFileSync } from "fs";
+import { existsSync, copyFileSync, readFileSync } from "fs";
 import { validateEnv } from "../config/env.ts";
 import { healthCheck } from "../engine/docker.ts";
 import {
@@ -17,6 +17,8 @@ export const generateCommand = new Command("generate")
   .option("--lang <language>", "簡報語言", "Traditional Chinese")
   .option("--style <tone>", "簡報風格語氣", "professional")
   .option("--output <path>", "輸出檔案路徑")
+  .option("--from <file>", "從文件檔案生成（支援 .md / .txt）")
+  .option("--template <name>", "PPTX 模板名稱")
   .action(async (prompt: string, options) => {
     // 1. Validate API Key
     const env = validateEnv();
@@ -36,7 +38,18 @@ export const generateCommand = new Command("generate")
       process.exit(1);
     }
 
-    // 3. Generate via MCP (fallback to REST)
+    // 3. Read --from file if specified
+    let fromContent: string | undefined;
+    if (options.from) {
+      const filePath = resolve(options.from);
+      if (!existsSync(filePath)) {
+        spinner.fail(`找不到檔案：${filePath}`);
+        process.exit(1);
+      }
+      fromContent = readFileSync(filePath, "utf-8");
+    }
+
+    // 4. Generate via MCP (fallback to REST)
     spinner.text = `正在生成簡報：「${prompt}」...`;
 
     const params = {
@@ -44,6 +57,8 @@ export const generateCommand = new Command("generate")
       n_slides: parseInt(options.slides, 10),
       language: options.lang,
       tone: options.style,
+      ...(fromContent ? { fromContent } : {}),
+      ...(options.template ? { template: options.template as string } : {}),
     };
 
     let result: { presentationId: string; path: string };
@@ -63,7 +78,7 @@ export const generateCommand = new Command("generate")
       }
     }
 
-    // 4. Copy PPTX from app_data to output location
+    // 5. Copy PPTX from app_data to output location
     const containerPath = result.path; // e.g. /app_data/presentations/xxx/output.pptx
     const hostPath = containerPath.replace(/^\/app_data/, "./app_data");
     const outputPath = resolve(
